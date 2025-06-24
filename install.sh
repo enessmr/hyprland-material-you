@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if ! grep -q "arch" /etc/os-release; then
-    echo ":: This script is designed to run on Arch Linux."
+if ! grep -q "arch" /etc/os-release || ! grep -q "Scratch" /etc/os-release || ! grep -q "scratch" /etc/os-release || ! grep -q "12" /etc/os-release ; then
+    echo ":: This script is designed to run on Arch Linux and LFS >12.0."
     exit 1
 fi
 
