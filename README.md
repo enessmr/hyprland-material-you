@@ -19,6 +19,7 @@ Here are some key features:
 > Discord: <https://discord.gg/nCK3sh8mNU>
 
 I'm creating v2 version for this dotfiles, so for any spoilers go to discord server.
+This fork is v1 just with minor modifications. (no new modules)
 
 ## To install
 
