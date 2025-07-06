@@ -2,6 +2,7 @@ from repository import gtk, gdk
 import typing as t
 from config import Settings
 import src.widget as widget
+from utils import sync_debounce
 
 
 class RowTemplate(gtk.Box):
@@ -144,6 +145,99 @@ class SettingsBoolRow(SwitchRowTemplate):
 
     def on_switch_changed(self, *args: t.Any) -> None:
         self.settings.set(self.key, self.switch.get_active())
+
+
+class SettingsTextRow(RowTemplate):
+    __gtype_name__ = "SettingsTextRow"
+
+    def __init__(
+        self,
+        label: str,
+        description: str | None,
+        key: str,
+        left_icon: str | None = None,
+        right_icon: str | None = None,
+        max_length: int | None = None,
+        transform_fn: t.Callable[[t.Any], str] | None = None,
+        transform2_fn: t.Callable[[str], t.Any] | None = None,
+        test_text: t.Callable[[str], bool] | None = None,
+        css_classes: tuple[str, ...] = (),
+        **props: t.Any
+    ) -> None:
+        self.key = key
+        self.transform_fn = transform_fn
+        self.transform2_fn = transform2_fn
+        self.test_text = test_text
+        self.settings = Settings()
+        super().__init__(label, description, css_classes, **props)
+
+        self.entry_box = gtk.Box(
+            css_classes=("entry-box",)
+        )
+        self.entry = gtk.Entry(
+            css_classes=("entry",),
+            halign=gtk.Align.END
+        )
+        if max_length:
+            self.entry.set_max_length(max_length)
+            self.entry.set_max_width_chars(max_length)
+
+        self.entry_box.append(self.entry)
+        if left_icon:
+            self.left_icon = widget.Icon(
+                left_icon,
+                css_classes=("left",)
+            )
+            self.entry_box.prepend(self.left_icon)
+        if right_icon:
+            self.right_icon = widget.Icon(
+                right_icon,
+                css_classes=("right",)
+            )
+            self.entry_box.append(self.right_icon)
+        self.append(self.entry_box)
+
+        self.debounced_text_changed = sync_debounce(500)(self.text_changed)
+        self.entry_handler = (
+            self.entry.connect("notify::text", self.debounced_text_changed)
+        )
+        self.settings_handler = self.settings.watch(
+            key, self.setting_updated
+        )
+
+    def setting_updated(self, new_value: float) -> None:
+        value = (
+            self.transform_fn(new_value)
+            if self.transform_fn
+            else new_value
+        )
+        if self.entry.get_text() != value:
+            self.entry.handler_block(self.entry_handler)
+            self.entry.set_text(value)
+            self.entry.handler_unblock(self.entry_handler)
+
+    def destroy(self) -> None:
+        super().destroy()
+        self.entry.disconnect(self.entry_handler)
+
+    def text_changed(self, *args: t.Any) -> None:
+        text = self.entry.get_text()
+        if self.test_text and not self.test_text(text):
+            new_value = self.settings.get(self.key)
+            value = (
+                self.transform_fn(new_value)
+                if self.transform_fn
+                else new_value
+            )
+            self.entry.set_text(value)
+            return
+
+        value = (
+            self.transform2_fn(text)
+            if self.transform2_fn
+            else text
+        )
+        self.settings.set(self.key, value)
 
 
 class Category(gtk.Label):
