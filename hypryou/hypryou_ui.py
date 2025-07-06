@@ -163,23 +163,9 @@ class HyprYou(gtk.Application):
     async def start_app(self) -> None:
         await self.init_services()
 
-        try:
-            colors = utils.colors.sync()
-            if colors is not None:
-                if colors.wallpaper == Settings().get("wallpaper"):
-                    utils.apply_css()
-                else:
-                    if __debug__:
-                        logger.debug(
-                            "Settings wallpaper and " +
-                            "colors wallpaper are different. " +
-                            "Generating new colors."
-                        )
-                    utils.colors.generate_by_last_wallpaper()
-            else:
-                raise ValueError
-        except Exception:
-            utils.colors.generate_by_last_wallpaper()
+        cache_ok = utils.colors.generate_by_settings()
+        if cache_ok:
+            utils.apply_css()
 
         self.tasks: list[asyncio.Task[t.Any]] = []
         await self.start_services()

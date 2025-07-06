@@ -3,7 +3,7 @@ from config import Settings
 from utils.ref import Ref
 from utils.styles import reload_css
 from utils.service import Service
-from utils.colors import generate_by_last_wallpaper
+from utils.colors import generate_by_settings
 from repository import gdk, glib, gio
 import typing as t
 from types import NoneType
@@ -94,12 +94,16 @@ def generate_wallpaper_texture() -> None:
 
 
 def on_wallpapers_changed(*args: t.Any) -> None:
-    generate_by_last_wallpaper()
+    generate_by_settings()
     glib.idle_add(generate_wallpaper_texture)
 
 
 def on_opacity_changed(new_value: float) -> None:
     reload_css()
+
+
+def on_color_changed(new_value: str) -> None:
+    generate_by_settings()
 
 
 class StateService(Service):
@@ -108,4 +112,5 @@ class StateService(Service):
         settings = Settings()
         settings.watch("wallpaper", on_wallpapers_changed, False)
         settings.watch("opacity", on_opacity_changed, False)
+        settings.watch("color", on_color_changed, False)
         glib.idle_add(generate_wallpaper_texture)

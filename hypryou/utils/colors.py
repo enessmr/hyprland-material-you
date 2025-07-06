@@ -693,6 +693,36 @@ def generate_by_last_wallpaper(
         )
 
 
+def generate_by_settings(
+    on_complete: t.Callable[[], None] | None = None
+) -> bool:
+    try:
+        settings = Settings()
+        with open(colors_json) as f:
+            content = get_cache_object(f.read())
+        color = str(settings.get("color")).lstrip("#")
+        use_color = bool(color)
+        if use_color:
+            cached_color = content.original_color
+            color_int = int(color, 16)
+            if color_int != cached_color:
+                generate_by_color(color_int, on_complete=on_complete)
+                return False
+        else:
+            wallpaper = str(settings.get("wallpaper"))
+            cached_wallpaper = content.wallpaper
+            if wallpaper != cached_wallpaper:
+                generate_by_wallpaper(wallpaper, on_complete=on_complete)
+                return False
+        dark_mode.value = content.is_dark
+        if on_complete:
+            on_complete()
+        return True
+    except (FileNotFoundError, ValueError):
+        restore_palette()
+        return False
+
+
 def restore_palette(
     on_complete: t.Callable[[], None] | None = None
 ) -> None:
