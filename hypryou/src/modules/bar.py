@@ -54,6 +54,7 @@ class Workspaces(gtk.Box):
     __gtype_name__ = "HyprlandWorkspaces"
 
     def __init__(self, monitor_id: int) -> None:
+        self.settings = Settings()
         self.monitor_id = monitor_id
         super().__init__(
             css_classes=("workspaces",),
@@ -63,6 +64,7 @@ class Workspaces(gtk.Box):
         self._old_active = 0
 
         self.buttons: dict[int, WorkspaceButton] = {}
+        self.hide_empty = self.settings.get("hide_empty_workspaces")
 
         self.update_buttons()
 
@@ -70,8 +72,13 @@ class Workspaces(gtk.Box):
             active_workspace: active_workspace.watch(self.update_active),
             workspace_ids: workspace_ids.watch(self.update_empty)
         }
-        self.settings_handler = Settings().watch(
-            "separated_workspaces", self.update_buttons, False
+        self.settings_handlers = (
+            self.settings.watch(
+                "separated_workspaces", self.update_buttons, False
+            ),
+            self.settings.watch(
+                "hide_empty_workspaces", self.on_hide_empty, False
+            ),
         )
 
         self._last_scroll = 0.0
@@ -83,6 +90,10 @@ class Workspaces(gtk.Box):
         )
         self.add_controller(self._scroll)
 
+    def on_hide_empty(self, new_value: bool) -> None:
+        self.hide_empty = new_value
+        self.update_empty(workspace_ids.value)
+
     def update_buttons(self, *args: t.Any) -> None:
         if self.buttons:
             for button in self.buttons.values():
@@ -91,9 +102,10 @@ class Workspaces(gtk.Box):
             self.buttons.clear()
         if self._old_active:
             self._old_active = 0
-        settings = Settings()
         monitor_multiplier = (
-            self.monitor_id + 1 if settings.get("separated_workspaces") else 1
+            self.monitor_id + 1
+            if self.settings.get("separated_workspaces")
+            else 1
         )
 
         for workspace in (
@@ -115,7 +127,10 @@ class Workspaces(gtk.Box):
 
         self._scroll.disconnect(self._scroll_connection)
         self.remove_controller(self._scroll)
-        Settings().unwatch(self.settings_handler)
+
+        for handler in self.settings_handlers:
+            self.settings.unwatch(handler)
+
         self._scroll = None  # type: ignore
         for ref, handler_id in self.ref_handlers.items():
             ref.unwatch(handler_id)
@@ -154,7 +169,12 @@ class Workspaces(gtk.Box):
         not_empty: set[int]
     ) -> None:
         for button in self.buttons.values():
-            toggle_css_class(button, "empty", button.id not in not_empty)
+            is_empty = button.id not in not_empty
+            toggle_css_class(button, "empty", is_empty)
+            if self.hide_empty:
+                button.set_visible(not is_empty)
+            else:
+                button.set_visible(True)
 
 
 class Clock(gtk.Label):

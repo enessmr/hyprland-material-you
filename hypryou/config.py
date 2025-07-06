@@ -56,6 +56,7 @@ default_settings: dict[str, t.Any] = {
     "gtk3_theme": True,
     "secure_cliphist": False,
     "floating_sidebar": False,
+    "hide_empty_workspaces": False,
     "color": "",
 
     "blur": True,

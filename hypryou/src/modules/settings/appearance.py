@@ -114,6 +114,11 @@ class AppearancePage(gtk.ScrolledWindow):
                 "Opening a popup closes the previous one",
                 "one_popup_at_time"
             ),
+            SettingsBoolRow(
+                "Hide empty workspaces",
+                "Don't show workspaces without windows",
+                "hide_empty_workspaces"
+            ),
         )
         for child in self.children:
             self.box.append(child)
