@@ -35,7 +35,8 @@ HELP = {
     "lock": "Lock session",
     "screenshot": ("Take screenshot: region, active, " +
                    "window; add freeze to pause screen"),
-    "help": "Show this help"
+    "help": "Show this help",
+    "settings": "Open settings"
 }
 
 
