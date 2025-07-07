@@ -176,11 +176,13 @@ int main(void)
 
         if (WIFEXITED(status) || WIFSIGNALED(status))
         {
-            int code;
+            volatile int code;
             if (WIFEXITED(status))
                 code = WEXITSTATUS(status);
-            else
+            else if (WIFSIGNALED(status))
                 code = 128 + WTERMSIG(status);
+            else
+                code = -1;
 
             if (code == 0 || code == 100 || code == 143 || code == 137)
             {
