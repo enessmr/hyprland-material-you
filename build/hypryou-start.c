@@ -8,7 +8,6 @@
 #include <pwd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <signal.h>
 
 #define MAX_RETRIES 5
 #define RETRY_TIMEOUT 10
