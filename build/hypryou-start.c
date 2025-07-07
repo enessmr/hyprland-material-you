@@ -104,7 +104,7 @@ int main(void)
         struct tm *tm_info = localtime(&now);
         char timestamp[64];
         strftime(timestamp, sizeof(timestamp),
-                 "crashLog-%Y-%m-%d_%H-%M-%S.txt", tm_info);
+                 "appLog-%Y-%m-%d_%H-%M-%S.txt", tm_info);
 
         char log_path[512];
         snprintf(log_path, sizeof(log_path), "%s/%s", crash_dir, timestamp);
