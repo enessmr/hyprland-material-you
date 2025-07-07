@@ -8,6 +8,7 @@
 #include <pwd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #define MAX_RETRIES 5
 #define RETRY_TIMEOUT 60
@@ -119,6 +120,7 @@ int main(void)
         pid_t pid = fork();
         if (pid == 0)
         {
+            setenv("HYPRYOU_WATCHDOG", "1", 1);
             close(pipefd[0]);
             dup2(pipefd[1], STDOUT_FILENO);
             dup2(pipefd[1], STDERR_FILENO);
@@ -190,6 +192,7 @@ int main(void)
                 if (code == 100)
                 {
                     printf("App asked for reload (exit code: %d)\n", code);
+                    usleep(100000);
                     continue;
                 }
                 else

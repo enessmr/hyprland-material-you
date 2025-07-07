@@ -62,8 +62,11 @@ class CliRequest:
     def do_ping(self, args: str) -> str:
         return "pong"
 
-    def do_reload(self, args: str) -> str:
-        return "ok"
+    def do_reload(self, args: str) -> tuple[str, bool]:
+        if os.getenv("HYPRYOU_WATCHDOG"):
+            return "ok", True
+        else:
+            return "Not running in watchdog, skipped...", False
 
     def post_reload(self, args: str) -> None:
         exit(100)
@@ -169,12 +172,16 @@ async def handle_client(
         if __debug__:
             logger.debug("Received message from socket: '%s'", message)
 
-        response, post = await handle_request(message)
+        _response, post = await handle_request(message)
+        if isinstance(_response, tuple):
+            response, success = _response
+        else:
+            response, success = _response, True
         writer.write(response.encode())
         await writer.drain()
         writer.close()
         await writer.wait_closed()
-        if post is not None:
+        if post is not None and success:
             post()
     except (
         ConnectionResetError,
@@ -188,7 +195,9 @@ async def handle_client(
             await writer.wait_closed()
 
 
-async def handle_request(data: str) -> tuple[str, t.Callable[[], None] | None]:
+async def handle_request(
+    data: str
+) -> tuple[str | tuple[str, bool], t.Callable[[], None] | None]:
     parts = data.strip().split(" ", 1)
     command = parts[0]
     args = parts[1] if len(parts) > 1 else ""
@@ -201,7 +210,7 @@ async def handle_request(data: str) -> tuple[str, t.Callable[[], None] | None]:
             post_method = getattr(request, post_attr, None)
             if callable(method):
                 return (
-                    str(method(args)),
+                    t.cast(str | tuple[str, bool], method(args)),
                     lambda: post_method(args)
                     if post_method and callable(post_method)
                     else None
