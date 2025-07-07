@@ -10,7 +10,7 @@
 #include <sys/types.h>
 
 #define MAX_RETRIES 5
-#define RETRY_TIMEOUT 10
+#define RETRY_TIMEOUT 60
 #define WORKING_DIR "/opt/hypryou"
 
 static int mkdir_p(const char *path, mode_t mode)
