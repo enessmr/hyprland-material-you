@@ -205,11 +205,11 @@ class SettingsTextRow(RowTemplate):
             key, self.setting_updated
         )
 
-    def setting_updated(self, new_value: float) -> None:
+    def setting_updated(self, new_value: t.Any) -> None:
         value = (
             self.transform_fn(new_value)
             if self.transform_fn
-            else new_value
+            else str(new_value)
         )
         if self.entry.get_text() != value:
             self.entry.handler_block(self.entry_handler)

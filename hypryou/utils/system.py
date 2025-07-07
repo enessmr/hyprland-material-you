@@ -62,7 +62,7 @@ def get_cpu_percent(
     delta_idle = idle - prev_idle
 
     if delta_total == 0:
-        return 0.0
+        return 0, total, idle
 
     return int(100.0 * (delta_total - delta_idle) / delta_total), total, idle
 

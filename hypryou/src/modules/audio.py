@@ -200,8 +200,12 @@ class EndpointItem(gtk.Box):
         self.remove_controller(self.click_gesture)
 
 
-EndpointItem.install_action("set_default", None, EndpointItem.set_default)
-EndpointItem.install_action("mute", None, EndpointItem.toggle_mute)
+EndpointItem.install_action(
+    "set_default", None, EndpointItem.set_default  # type: ignore
+)
+EndpointItem.install_action(
+    "mute", None, EndpointItem.toggle_mute  # type: ignore
+)
 
 
 class StreamItem(gtk.Box):

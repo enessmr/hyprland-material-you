@@ -43,12 +43,11 @@ class BluetoothToggle(RowTemplate):
             "clicked", self.on_discover
         )
         self.adapter = self.bluetooth.get_adapter()
+        self.discovering_handler: int | None = None
         if self.adapter:
             self.discovering_handler = self.adapter.connect(
                 "notify::discovering", self.on_discovering
             )
-        else:
-            self.discover_handler = None
         self.on_update()
 
     def on_discovering(self, *args: t.Any) -> None:
@@ -70,7 +69,7 @@ class BluetoothToggle(RowTemplate):
     def on_click(self) -> None:
         self.switch.activate()
 
-    def on_secondary_click(self):
+    def on_secondary_click(self) -> None:
         launch_detached("blueman-manager")
 
     def on_update(self, *args: t.Any) -> None:
@@ -182,7 +181,7 @@ class BluetoothDevice(RowTemplate):
         if button_number == gdk.BUTTON_PRIMARY:
             self.on_click()
         elif button_number == gdk.BUTTON_SECONDARY:
-            self.on_secondary_click(x, y)
+            self._on_secondary_click(x, y)
 
     def connect_action(self, *args: t.Any) -> None:
         self.on_click()
@@ -199,7 +198,7 @@ class BluetoothDevice(RowTemplate):
                 adapter = _bluetooth.get_adapter()
                 adapter.set_pairable(True)
 
-                def pair_async():
+                def pair_async() -> None:
                     try:
                         self.device.pair()
                         self.device.connect_device()
@@ -208,7 +207,7 @@ class BluetoothDevice(RowTemplate):
 
                 threading.Thread(target=pair_async, daemon=True).start()
 
-    def on_secondary_click(self, x: int, y: int) -> None:
+    def _on_secondary_click(self, x: int, y: int) -> None:
         rect = gdk.Rectangle()
         rect.x = x
         rect.y = y
@@ -240,8 +239,12 @@ class BluetoothDevice(RowTemplate):
         super().destroy()
 
 
-BluetoothDevice.install_action("connect", None, BluetoothDevice.connect_action)
-BluetoothDevice.install_action("copy_address", None, BluetoothDevice.copy)
+BluetoothDevice.install_action(
+    "connect", None, BluetoothDevice.connect_action  # type: ignore
+)
+BluetoothDevice.install_action(
+    "copy_address", None, BluetoothDevice.copy  # type: ignore
+)
 
 
 class BluetoothList(gtk.Box):
@@ -294,10 +297,10 @@ class BluetoothList(gtk.Box):
                 self.append(row)
 
         for addr in removed:
-            row = self.items.pop(addr, None)
-            if row:
-                row.destroy()
-                self.remove(row)
+            _row = self.items.pop(addr, None)
+            if _row:
+                _row.destroy()
+                self.remove(_row)
 
     def destroy(self, *args: t.Any) -> None:
         self.bluetooth.disconnect(self.devices_handler)

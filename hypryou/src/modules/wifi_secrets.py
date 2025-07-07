@@ -127,7 +127,7 @@ class SecretsDialog(gtk.ApplicationWindow):
     def on_entry_enter(self, *args: t.Any) -> None:
         self.connect_button.activate()
 
-    def return_value(self, value: str | None) -> None:
+    def return_value(self, value: UserCanceled | str | None) -> None:
         method = self.callback_ref()
         if method is not None:
             method(value)

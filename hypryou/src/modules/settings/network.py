@@ -13,6 +13,7 @@ class WifiToggle(RowTemplate):
 
     def __init__(self) -> None:
         self.network = get_network()
+        self.wifi = self.network.wifi
         super().__init__(
             "Wi-Fi",
             "Find and connect to Wi-Fi networks",
@@ -39,12 +40,11 @@ class WifiToggle(RowTemplate):
         self.scan_handler = self.scan.connect(
             "clicked", self.on_scan
         )
+        self.wifi_scan_handler: int | None = None
         if self.network.wifi:
             self.wifi_scan_handler = self.network.wifi.watch(
                 "scanning", self.on_scanning
             )
-        else:
-            self.wifi_scan_handler = None
         self.on_update()
 
     def on_scanning(self, state: bool) -> None:
@@ -55,18 +55,20 @@ class WifiToggle(RowTemplate):
             self.scan.set_tooltip_text("Scan")
 
     def on_scan(self, *args: t.Any) -> None:
-        self.network.wifi.scan()
+        if not self.wifi:
+            return
+        self.wifi.scan()
 
     def on_click(self) -> None:
         self.switch.activate()
 
-    def on_secondary_click(self):
+    def on_secondary_click(self) -> None:
         launch_detached("nm-connection-editor")
 
     def on_update(self) -> None:
-        if self.network.wifi:
+        if self.wifi:
             self.set_sensitive(True)
-            enabled = self.network.wifi.enabled
+            enabled = self.wifi.enabled
             self.switch.handler_block(self.switch_handler)
             self.switch.set_active(enabled)
             self.switch.handler_unblock(self.switch_handler)
@@ -83,8 +85,8 @@ class WifiToggle(RowTemplate):
         self.switch.disconnect(self.switch_handler)
         self.network.unwatch(self.network_handler)
         self.scan.disconnect(self.scan_handler)
-        if self.wifi_scan_handler:
-            self.network.wifi.unwatch(self.wifi_scan_handler)
+        if self.wifi_scan_handler and self.wifi:
+            self.wifi.unwatch(self.wifi_scan_handler)
 
 
 class AccessPointRow(RowTemplate):
@@ -185,14 +187,13 @@ class WifiList(gtk.Box):
 
     def __init__(self) -> None:
         self.network = get_network()
-        self.wifi = self.network.wifi
         self.bssid_ssid_map: dict[str, str] = {}
         super().__init__(
             css_classes=("wifi-list",),
             vexpand=True,
             orientation=gtk.Orientation.VERTICAL
         )
-        if not self.wifi:
+        if not self.network.wifi:
             self.append(
                 gtk.Label(
                     label="Wifi not available",
@@ -200,8 +201,9 @@ class WifiList(gtk.Box):
                 )
             )
             return
+        self.wifi = self.network.wifi
         self.items: dict[str, AccessPointRow] = {}
-        for ap in self.network.wifi.access_points.values():
+        for ap in self.wifi.access_points.values():
             self.bssid_ssid_map[ap.bssid] = ap.ssid
             if ap.ssid in self.items.keys():
                 self.items[ap.ssid].add_ap(ap)
@@ -242,7 +244,7 @@ class WifiList(gtk.Box):
         self.set_active_description(new_state)
 
     def on_active(self, *args: t.Any) -> None:
-        active_ap = self.network.wifi.active_access_point
+        active_ap = self.wifi.active_access_point
         ssid = active_ap.ssid if active_ap else None
         if not ssid:
             return

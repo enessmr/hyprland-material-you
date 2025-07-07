@@ -124,7 +124,7 @@ class PinDialogHandler:
                 "Aborting..."
             )
         if not self.dialog:
-            self.dialog = self.widget(
+            self.dialog = self.widget(  # type: ignore
                 self.pin,
                 self.show_buttons,
                 self.on_dialog_finish
@@ -139,7 +139,7 @@ class BluetoothAgent:
         self.iface = self.node_info.interfaces[0]
         self.active_handlers: dict[str, PinDialogHandler] = {}
 
-    def register(self) -> int:
+    def register(self) -> None:
         if __debug__:
             logger.debug("Registering interface '%s'", self.iface.name)
 
@@ -196,14 +196,15 @@ class BluetoothAgent:
                     )
                     return
 
+                def cleanup() -> None:
+                    self.active_handlers.pop(key, None)
+
                 handler = PinDialogHandler(
                     conn,
                     invocation,
                     str(passkey),
                     True,
-                    lambda key=key: (
-                        self.active_handlers.pop(key, None)
-                    )
+                    cleanup
                 )
 
                 self.active_handlers[key] = handler
@@ -229,14 +230,15 @@ class BluetoothAgent:
                     )
                     return
 
+                def cleanup() -> None:
+                    self.active_handlers.pop(key, None)
+
                 handler = PinDialogHandler(
                     conn,
                     invocation,
                     str(passkey),
                     False,
-                    lambda key=key: (
-                        self.active_handlers.pop(key, None)
-                    )
+                    cleanup
                 )
 
                 self.active_handlers[key] = handler

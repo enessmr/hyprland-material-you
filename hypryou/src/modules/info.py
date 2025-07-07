@@ -195,10 +195,10 @@ class SystemPage(gtk.Box):
             gtk.Separator(
                 orientation=gtk.Orientation.HORIZONTAL
             ),
-            InfoRow("CPU", STATIC["cpu"]),
+            InfoRow("CPU", str(STATIC["cpu"])),
             InfoRow("Memory", f"{STATIC["total_ram"]} MB"),
             self.swap_row,
-            InfoRow("Kernel", STATIC["kernel"])
+            InfoRow("Kernel", str(STATIC["kernel"]))
         )
 
         for child in self.children:

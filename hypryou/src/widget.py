@@ -209,7 +209,7 @@ class StackButton(gtk.Button):
 class Switch(gtk.Switch):
     __gtype_name__ = "HyprYouSwitch"
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: t.Any, **kwargs: t.Any) -> None:
         # NOTE: I used weakref just to not create destroy() method
         super().__init__(*args, **kwargs)
         _weak_self = weakref.ref(self)

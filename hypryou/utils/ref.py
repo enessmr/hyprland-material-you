@@ -362,7 +362,7 @@ class Ref(t.Generic[T]):
                 return {key: _unpack(val) for key, val in value.items()}
             return value
 
-        return _unpack(self._value)
+        return t.cast(T, _unpack(self._value))
 
     def create_ref(self, object: t.Any) -> int:
         if self.links:
@@ -370,6 +370,7 @@ class Ref(t.Generic[T]):
         else:
             new_id = 0
         self.links[new_id] = object
+        return new_id
 
     def remove_ref(self, id: int) -> None:
         del self.links[id]

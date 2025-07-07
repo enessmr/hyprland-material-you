@@ -779,3 +779,4 @@ def sync() -> ColorsCache | None:
         return content
     except FileNotFoundError:
         restore_palette()
+        return None

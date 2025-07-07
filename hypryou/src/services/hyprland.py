@@ -53,7 +53,7 @@ ClientWorkspace = t.TypedDict(
 )
 
 ClientDict = t.TypedDict(
-    "Client",
+    "ClientDict",
     {
         "address": str,
         "mapped": bool,
@@ -98,7 +98,7 @@ class Client(Signals):
                 self._data = data
                 self.notify("changed")
 
-        asyncio.create_task(async_task)
+        asyncio.create_task(async_task())
 
     def get_icon(self) -> gtk.IconPaintable | None:
         original_app_id = self.initial_class
@@ -109,7 +109,7 @@ class Client(Signals):
             f"{original_app_id}.desktop",
         ]
 
-        desktop_file = None
+        desktop_file: gio.AppInfo | None = None
         for app_id_candidate in possible_ids:
             if not app_id_candidate:
                 continue
@@ -123,7 +123,12 @@ class Client(Signals):
         if not desktop_file:
             lower_original = original_app_id.lower()
             for info in gio.AppInfo.get_all():
-                if info.get_id().lower().startswith(lower_original):
+                id = (info.get_id() or "").lower()
+                if (
+                    id
+                    and (id.startswith(lower_original)
+                         or id.endswith(lower_original))
+                ):
                     desktop_file = info
                     break
 
@@ -132,6 +137,8 @@ class Client(Signals):
 
         icon = desktop_file.get_icon()
         icon_name = icon.to_string() if icon else original_app_id.lower()
+        if icon_name is None:
+            return None
 
         display = gdk.Display.get_default()
         theme = gtk.IconTheme.get_for_display(display)
@@ -168,11 +175,11 @@ class Client(Signals):
 
     @property
     def at(self) -> tuple[int, int]:
-        return tuple(self._data["at"])
+        return (self._data["at"][0], self._data["at"][1])
 
     @property
     def size(self) -> tuple[int, int]:
-        return tuple(self._data["size"])
+        return (self._data["size"][0], self._data["size"][1])
 
     @property
     def workspace(self) -> ClientWorkspace:
@@ -411,7 +418,7 @@ class EventCallbacks:
         if window_address in clients.value.keys():
             _client = clients.value[window_address]
             _client._data["workspace"]["id"] = int(workspace_id)
-            _client._data["workspace"]["name"] = int(workspace_name)
+            _client._data["workspace"]["name"] = workspace_name
             _client.notify("changed")
         else:
             asyncio.create_task(clients_full_sync())

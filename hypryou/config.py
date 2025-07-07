@@ -108,7 +108,7 @@ class Settings:
             self._initialized = True
             self._values: dict[str, Ref[t.Any]] = {}
             self._allow_saving = False
-            self._file_dict = {}
+            self._file_dict: dict[str, t.Any] = {}
             self.sync()
             self._add_default()
             self._allow_saving = True

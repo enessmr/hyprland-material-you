@@ -1,4 +1,4 @@
-from enum import Enum, Flag
+from enum import Enum, IntFlag
 from repository import nm, glib, gio, gtk
 from utils.logger import logger
 import typing as t
@@ -151,7 +151,7 @@ class Mode80211(int, Enum):
     MESH = 4
 
 
-class ApFlags80211(int, Flag):
+class ApFlags80211(IntFlag):
     NONE = 0
     PRIVACY = 1
     WPS = 2
@@ -159,7 +159,7 @@ class ApFlags80211(int, Flag):
     WPS_PIN = 8
 
 
-class ApSecurityFlags80211(int, Flag):
+class ApSecurityFlags80211(IntFlag):
     NONE = 0
     PAIR_WEP40 = 1
     PAIR_WEP104 = 2
@@ -566,13 +566,14 @@ class Wifi(Signals):
     ) -> nm.RemoteConnection | None:
         ac_conn = conn or self.device.get_active_connection()
         if not ac_conn:
-            return
+            return None
         if ac_conn.get_state() not in (
             nm.ActiveConnectionState.DEACTIVATED,
             nm.ActiveConnectionState.DEACTIVATING
         ):
             self.client.deactivate_connection(ac_conn, None)
             return ac_conn.get_connection()
+        return None
 
 
 class Network(Signals):
@@ -592,7 +593,6 @@ class Network(Signals):
             name="wifi_icon"
         )
 
-        self.client: nm.Client
         self.primary = Primary.UNKNOWN
         try:
             self.wifi_device = self.get_device(nm.DeviceType.WIFI)
@@ -767,7 +767,9 @@ class SecretPromptHandler:
                 "Aborting..."
             )
         if not self.dialog:
-            self.dialog = self.widget(self.ssid, self.on_dialog_finish)
+            self.dialog = self.widget(  # type: ignore
+                self.ssid, self.on_dialog_finish
+            )
             self.dialog.present()
 
 
@@ -781,7 +783,7 @@ class SecretAgent:
         self.iface = self.node_info.interfaces[0]
         self.active_prompts: dict[str, SecretPromptHandler] = {}
 
-    def register(self) -> int:
+    def register(self) -> None:
         if __debug__:
             logger.debug("Registering interface '%s'", self.iface.name)
 
@@ -842,6 +844,9 @@ class SecretAgent:
                     )
                     return
 
+                def cleanup() -> None:
+                    self.active_prompts.pop(prompt_key, None)
+
                 prompt = SecretPromptHandler(
                     conn,
                     invocation,
@@ -849,9 +854,7 @@ class SecretAgent:
                     hints,
                     flags,
                     ssid,
-                    lambda key=prompt_key: (
-                        self.active_prompts.pop(key, None)
-                    )
+                    cleanup
                 )
 
                 self.active_prompts[prompt_key] = prompt
@@ -859,9 +862,9 @@ class SecretAgent:
                 path, setting_name = params.unpack()
                 prompt_key = f"{path}:{setting_name}"
 
-                prompt = self.active_prompts.pop(prompt_key, None)
-                if prompt:
-                    prompt.cancel()
+                _prompt = self.active_prompts.pop(prompt_key, None)
+                if _prompt:
+                    _prompt.cancel()
 
                 invocation.return_value(None)
             case "SaveSecrets":
@@ -890,4 +893,4 @@ class NetworkService(Service):
         _instance = Network(self.client)
 
     def start(self) -> None:
-        _instance.agent.register()
+        get_network().agent.register()

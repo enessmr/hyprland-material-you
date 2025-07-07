@@ -107,7 +107,7 @@ class PinDialog(gtk.ApplicationWindow):
         self.disconnect(self.close_handler)
         super().destroy()
 
-    def return_value(self, value: str | None) -> None:
+    def return_value(self, value: CallbackReturn) -> None:
         method = self.callback_ref()
         if method is not None:
             method(value)

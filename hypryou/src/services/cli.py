@@ -78,7 +78,7 @@ class CliRequest:
         Settings().sync()
         return "ok"
 
-    def do_settings(self, page: str) -> None:
+    def do_settings(self, page: str) -> str:
         state.open_settings(page or "default")
         return "ok"
 
@@ -150,7 +150,7 @@ class CliRequest:
             launch_detached(command)
         return "ok"
 
-    def do_help(self, args: str) -> None:
+    def do_help(self, args: str) -> str:
 
         max_cmd_len = max((len(cmd) for cmd in HELP), default=0)
         output = ""

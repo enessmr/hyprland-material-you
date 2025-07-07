@@ -241,14 +241,14 @@ class SettingsBox(gtk.Box):
         self.append(self.sidebar_scrollable)
         self.append(self.view)
 
-        self.pages_widgets: dict[str, type[gtk.Widget]] = {}
+        self.pages_widgets: dict[str, type[PageType]] = {}
         self.pages: dict[str, PageType] = {}
         self.buttons: dict[str, SidebarButton] = {}
         self.titles: dict[str, str] = {}
         self.cur_page = ""
 
         for key, page in pages.items():
-            self.pages_widgets[key] = page.widget
+            self.pages_widgets[key] = t.cast("type[PageType]", page.widget)
             self.buttons[key] = SidebarButton(
                 key,
                 page.title,
