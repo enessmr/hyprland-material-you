@@ -148,12 +148,36 @@ class HyprYou(gtk.Application):
                 )
                 exit(1)
 
+    async def async_service_wrapper(self, service: AsyncService) -> None:
+        try:
+            await service.start()
+        except Exception as e:
+            logger.critical(
+                "Service crashed on task: %s",
+                type(service).__name__,
+                exc_info=e
+            )
+            exit(1)
+
+    def sync_service_wrapper(self, service: Service) -> None:
+        try:
+            service.start()
+        except Exception as e:
+            logger.critical(
+                "Service crashed on task: %s",
+                type(service).__name__,
+                exc_info=e
+            )
+            exit(1)
+
     async def start_services(self) -> None:
         for service in services:
             if isinstance(service, AsyncService):
-                self.tasks.append(asyncio.create_task(service.start()))
+                self.tasks.append(
+                    asyncio.create_task(self.async_service_wrapper(service))
+                )
             elif isinstance(service, Service):
-                glib.idle_add(service.start)
+                glib.idle_add(self.sync_service_wrapper, service)
             else:
                 logger.warning(
                     "Unknown type of service: %s; Couldn't start.",

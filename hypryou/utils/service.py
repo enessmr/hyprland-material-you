@@ -106,7 +106,8 @@ class Signals:
                         "Error while calling callback: %s",
                         e, exc_info=e
                     )
-                    to_remove.append(handler_id)
+                    exit(1)
+                    # to_remove.append(handler_id)
 
             for handler_id in to_remove:
                 del signal_callbacks[handler_id]
