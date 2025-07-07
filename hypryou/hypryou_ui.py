@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
+import threading
 from repository import gtk, gdk, gio, glib
 import time
 import typing as t
 import logging
 import os
+import signal
 
 import utils
 from utils.logger import logger
@@ -60,6 +62,7 @@ from src.modules.wifi_secrets import SecretsDialog
 from src.modules.bluetooth_pin import PinDialog
 
 START = time.perf_counter()
+loop: glib.MainLoop
 
 services: tuple[AsyncService | Service, ...] = (
     StateService(),
@@ -304,10 +307,41 @@ def init() -> None:
 
 
 def main() -> None:
+    global loop
     if __debug__:
         logger.debug("Starting app")
+    loop = glib.MainLoop()
+    start_watchdog(5.0)
+
     app = HyprYou(application_id="com.koeqaife.hypryou")
     app.run(None)
+
+
+def watchdog(timeout: float) -> None:
+    event = threading.Event()
+
+    def ping() -> bool:
+        event.set()
+        return False
+
+    while True:
+        event.clear()
+        glib.idle_add(ping, priority=glib.PRIORITY_HIGH)
+        if not event.wait(timeout):
+            logger.critical(
+                "Watchdog error: Loop did not response in time."
+            )
+            signal.raise_signal(signal.SIGUSR1)
+        time.sleep(timeout)
+
+
+def start_watchdog(timeout: float = 1.0) -> threading.Thread:
+    thread = threading.Thread(
+        target=watchdog, args=(timeout,)
+    )
+    thread.daemon = True
+    thread.start()
+    return thread
 
 
 if __name__ == "__main__":
