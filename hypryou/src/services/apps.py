@@ -43,6 +43,7 @@ def launch_detached(exec: str) -> None:
         cmd,
         stdin=subprocess.DEVNULL,
         stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
         preexec_fn=os.setsid,
         cwd=cwd,
         env=os.environ.copy()
