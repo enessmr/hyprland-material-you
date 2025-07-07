@@ -180,9 +180,9 @@ int main(void)
             if (WIFEXITED(status))
                 code = WEXITSTATUS(status);
             else
-                code = WTERMSIG(status);
+                code = 128 + WTERMSIG(status);
 
-            if (code == 0 || code == 100 || code == 15 || code == 9)
+            if (code == 0 || code == 100 || code == 143 || code == 137)
             {
                 free(output_buf);
                 if (code == 100)
