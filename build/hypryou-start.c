@@ -175,11 +175,15 @@ int main(void)
         int status;
         waitpid(pid, &status, 0);
 
-        if (WIFEXITED(status))
+        if (WIFEXITED(status) || WIFSIGNALED(status))
         {
-            int code = WEXITSTATUS(status);
+            int code;
+            if (WIFEXITED(status))
+                code = WEXITSTATUS(status);
+            else
+                code = WTERMSIG(status);
 
-            if (code == 0 || code == 100)
+            if (code == 0 || code == 100 || code == 15 || code == 9)
             {
                 free(output_buf);
                 if (code == 100)
@@ -219,16 +223,6 @@ int main(void)
             printf("App exited with %d, retrying (%d/%d)...\n",
                    code, retry_count, MAX_RETRIES);
             sleep(1);
-        }
-        else if (WIFSIGNALED(status))
-        {
-            int sig = WTERMSIG(status);
-            fprintf(stderr, "App terminated by signal %d\n", sig);
-
-            show_crash_dialog(sig);
-            retry_count++;
-            sleep(1);
-            continue;
         }
         else
         {
