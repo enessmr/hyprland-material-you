@@ -1,4 +1,3 @@
-import subprocess
 from dataclasses import dataclass
 
 import cairo
@@ -23,6 +22,7 @@ from src.services.upower import get_upower, BatteryLevel, BatteryState
 from src.services.backlight import get_backlight_manager, BacklightDeviceView
 import src.services.audio as audio
 from src import widget
+from src.services.apps import launch_detached
 
 
 dummy_region = cairo.Region()
@@ -751,7 +751,7 @@ class AudioApplet(Applet):
         super().destroy()
 
     def open_pavucontrol(self) -> None:
-        subprocess.Popen(["pavucontrol"])
+        launch_detached("pavucontrol")
 
     def open_audio_menu(self) -> None:
         toggle_window("audio")
