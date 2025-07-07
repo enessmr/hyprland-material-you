@@ -8,7 +8,12 @@ from src import widget
 
 def open_hyprpicker(*_: t.Any) -> None:
     def start() -> None:
-        subprocess.Popen(["hyprpicker", "-a"])
+        subprocess.Popen(
+            ["hyprpicker", "-a"],
+            stderr=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL
+        )
     close_window("sidebar")
     glib.timeout_add(250, start)
 
