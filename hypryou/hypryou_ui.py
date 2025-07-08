@@ -332,10 +332,11 @@ def watchdog(timeout: float) -> None:
                 "Watchdog error: Loop did not response in time."
             )
             signal.raise_signal(signal.SIGUSR1)
+            exit(1)
         time.sleep(timeout)
 
 
-def start_watchdog(timeout: float = 1.0) -> threading.Thread:
+def start_watchdog(timeout: float = 5.0) -> threading.Thread:
     thread = threading.Thread(
         target=watchdog, args=(timeout,)
     )
