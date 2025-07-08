@@ -254,7 +254,7 @@ class SettingsBox(gtk.Box):
                 page.title,
                 page.icon,
                 page.icon_fill,
-                self.change_page
+                self.on_sidebar_button
             )
             self.titles[key] = page.title
 
@@ -280,6 +280,9 @@ class SettingsBox(gtk.Box):
         window = self.window()
         if window is not None:
             window.emit("close-request")
+
+    def on_sidebar_button(self, name: str) -> None:
+        settings_page.value = name
 
     def change_page(self, name: str) -> None:
         last_page = self.cur_page
