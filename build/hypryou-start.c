@@ -16,6 +16,16 @@
 #define RETRY_TIMEOUT 60
 #define WORKING_DIR "/opt/hypryou"
 
+enum SignalExitCode
+{
+    EXIT_SIGSEGV = 128 + SIGSEGV,
+    EXIT_SIGTERM = 128 + SIGTERM,
+    EXIT_SIGINT = 128 + SIGINT,
+    EXIT_SIGUSR1 = 128 + SIGUSR1,
+    EXIT_SIGKILL = 128 + SIGKILL,
+    EXIT_CUSTOM_RELOAD = 100,
+};
+
 static int mkdir_p(const char *path, mode_t mode)
 {
     char tmp[512];
@@ -189,10 +199,10 @@ int main(void)
             else
                 code = -1;
 
-            if (code == 0 || code == 100 || code == 143 || code == 137)
+            if (code == 0 || code == EXIT_CUSTOM_RELOAD || code == EXIT_SIGTERM || code == EXIT_SIGKILL || code == EXIT_SIGINT)
             {
                 free(output_buf);
-                if (code == 100)
+                if (code == EXIT_CUSTOM_RELOAD)
                 {
                     printf("App asked for reload (exit code: %d)\n", code);
                     usleep(100000);
@@ -249,9 +259,12 @@ int main(void)
 
             free(output_buf);
 
-            show_crash_dialog(-1);
-            retry_count++;
-            sleep(1);
+            pid_t pid2 = fork();
+            if (pid2 == 0)
+            {
+                show_crash_dialog(-1);
+            }
+            return 1;
         }
     }
 
