@@ -164,7 +164,8 @@ class CliRequest:
 
 
 async def handle_client(
-    reader: asyncio.StreamReader, writer: asyncio.StreamWriter
+    reader: asyncio.StreamReader,
+    writer: asyncio.StreamWriter
 ) -> None:
     try:
         data = await reader.read(1024)
@@ -187,12 +188,18 @@ async def handle_client(
         ConnectionResetError,
         ConnectionRefusedError,
         ConnectionError,
-        ConnectionAbortedError,
+        ConnectionAbortedError
     ) as e:
         logger.debug("Cli command connection was closed with error: %s", e)
         if writer:
-            writer.close()
-            await writer.wait_closed()
+            try:
+                writer.close()
+                await writer.wait_closed()
+            except BrokenPipeError:
+                if __debug__:
+                    logger.debug(
+                        "BrokenPipe error while closing after exception"
+                    )
 
 
 async def handle_request(
