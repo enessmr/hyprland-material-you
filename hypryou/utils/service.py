@@ -4,6 +4,7 @@ import weakref
 import threading
 from utils.logger import logger
 from repository import glib
+import signal
 
 # I don't wanna use GObject for signals in objects so I decided to do this code
 
@@ -106,7 +107,7 @@ class Signals:
                         "Error while calling callback: %s",
                         e, exc_info=e
                     )
-                    exit(1)
+                    signal.raise_signal(signal.SIGUSR1)
                     # to_remove.append(handler_id)
 
             for handler_id in to_remove:
