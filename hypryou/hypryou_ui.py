@@ -360,7 +360,8 @@ def handle_fatal_signal(signum: int, frame: "sys.FrameType") -> None:
         f"Received fatal signal {signame} ({signum}), cleaning up..."
     )
 
-    save_state()
+    if signum == signal.SIGUSR1:
+        save_state()
     stack_str = ''.join(traceback.format_stack(frame))
     logger.debug("Stack at signal:\n%s", stack_str)
 
