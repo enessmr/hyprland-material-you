@@ -31,6 +31,7 @@ from src.services.idle_inhibitor import IdleInhibitorService
 from src.services.apps import AppsService
 from src.services.hyprland_config import HyprlandConfigService
 from src.services.state import StateService
+from src.services.state import save_state, restore_state
 from src.services.upower import UPowerService
 from src.services.idle import ScreenSaverService
 from src.services.login1 import Login1ManagerService
@@ -151,7 +152,7 @@ class HyprYou(gtk.Application):
                     "Couldn't initialize service %s.",
                     type(service).__name__, exc_info=e
                 )
-                exit(1)
+                signal.raise_signal(signal.SIGUSR1)
 
     async def async_service_wrapper(self, service: AsyncService) -> None:
         try:
@@ -162,7 +163,7 @@ class HyprYou(gtk.Application):
                 type(service).__name__,
                 exc_info=e
             )
-            exit(1)
+            signal.raise_signal(signal.SIGUSR1)
 
     def sync_service_wrapper(self, service: Service) -> None:
         try:
@@ -173,7 +174,7 @@ class HyprYou(gtk.Application):
                 type(service).__name__,
                 exc_info=e
             )
-            exit(1)
+            signal.raise_signal(signal.SIGUSR1)
 
     async def start_services(self) -> None:
         for service in services:
@@ -228,6 +229,7 @@ class HyprYou(gtk.Application):
             "ms"
         )
         self.release()
+        restore_state()
         await asyncio.gather(*self.tasks)
 
     def get_monitors(self) -> gio.ListModel:
@@ -358,6 +360,7 @@ def handle_fatal_signal(signum: int, frame: "sys.FrameType") -> None:
         f"Received fatal signal {signame} ({signum}), cleaning up..."
     )
 
+    save_state()
     stack_str = ''.join(traceback.format_stack(frame))
     logger.debug("Stack at signal:\n%s", stack_str)
 
@@ -386,6 +389,10 @@ def handle_fatal_signal(signum: int, frame: "sys.FrameType") -> None:
 
     signal.signal(signum, signal.SIG_DFL)
     signal.raise_signal(signum)
+
+    # To exit if SIG_DFL didn't kill the process
+    time.sleep(0.1)
+    exit(1)
 
 
 if __name__ == "__main__":

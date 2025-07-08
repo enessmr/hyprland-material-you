@@ -1,4 +1,5 @@
 import threading
+import time
 from config import Settings
 from utils.ref import Ref
 from utils.styles import reload_css
@@ -8,6 +9,11 @@ from repository import gdk, glib, gio
 import typing as t
 from types import NoneType
 from utils.service import Signals
+from os.path import join, exists
+from config import state_path
+import os
+
+STATE_FILE_VERSION = 1
 
 _opened_windows = Ref[list[str]]([], name="opened_windows")
 current_wallpaper = Ref[gdk.Texture | None](
@@ -22,6 +28,7 @@ settings_page = Ref[str | None](
     name="settings_page",
     types=(str, NoneType)
 )
+restored_on = -1.0
 
 
 class OpenedWindowsWatcher(Signals):
@@ -104,6 +111,78 @@ def on_opacity_changed(new_value: float) -> None:
 
 def on_color_changed(new_value: str) -> None:
     generate_by_settings()
+
+
+def save_state() -> None:
+    if time.time() - restored_on < 60:
+        return
+
+    data = bytearray()
+    data.extend(b"HY")
+    data.append(STATE_FILE_VERSION)
+
+    # Session lock
+    data.append(1 if is_locked.value else 0)
+
+    # Current settings page
+    page_bytes = (settings_page.value or "").encode("utf-8")
+    data.append(len(page_bytes))
+    data.extend(page_bytes)
+
+    # popups
+    popups = _opened_windows.value
+    data.append(len(popups))  # number of popups
+    for popup in popups:
+        pb = popup.encode("utf-8")
+        if len(pb) > 255:
+            raise ValueError(f"Popup name too long: {popup}")
+        data.append(len(pb))
+        data.extend(pb)
+
+    with open(join(state_path, "last-state"), "wb") as f:
+        f.write(data)
+
+
+def restore_state() -> None:
+    path = join(state_path, "last-state")
+    if not exists(path):
+        return
+
+    with open(path, "rb") as f:
+        data = f.read()
+    os.remove(path)
+
+    pos = 0
+    if data[:2] != b'HY':
+        return
+    pos += 2
+
+    version = data[pos]
+    if version != STATE_FILE_VERSION:
+        return
+    pos += 1
+
+    global restored_on
+    restored_on = time.time()
+
+    is_locked.value = data[pos] == 1
+    pos += 1
+
+    page_len = data[pos]
+    pos += 1
+    page = data[pos:pos + page_len].decode("utf-8")
+    settings_page.value = page if page else None
+    pos += page_len
+
+    num_popups = data[pos]
+    pos += 1
+
+    for _ in range(num_popups):
+        plen = data[pos]
+        pos += 1
+        popup = data[pos:pos + plen].decode("utf-8")
+        pos += plen
+        open_window(popup)
 
 
 class StateService(Service):
