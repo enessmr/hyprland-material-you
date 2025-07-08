@@ -31,6 +31,7 @@ from pathlib import Path
 # I dropped support of color schemes
 # Because it's just easier when there's only 1 of them
 
+executor: concurrent.futures.ProcessPoolExecutor | None = None
 
 join = os.path.join
 gsettings = gio.Settings.new("org.gnome.desktop.interface")
@@ -282,15 +283,18 @@ class TemplateFormatter:
         return result
 
     def format(self, text: str) -> tuple[str, list[str]]:
-        pattern = r'(<(?:(\w+):)?(\w+)(?:\.(.+))?>)'
-        matches = re.findall(pattern, text)
+        pattern = r'<(?:(\w+):)?(\w+)(?:\.([^>]+?))?>'
+        matches = re.finditer(pattern, text)
         result = []
         actions = []
         last_end = 0
 
         for match in matches:
-            full_match, tag_type, key, transformations_str = match
-            start_index = text.find(full_match, last_end)
+            full_match = match.group(0)
+            tag_type = match.group(1) or ""
+            key = match.group(2)
+            transformations_str = match.group(3) or ""
+            start_index, end_index = match.span(0)
             if start_index == -1:
                 continue
 
@@ -588,6 +592,8 @@ def generate_colors(
     contrast_level: int = 0,
     on_complete: t.Callable[[], None] | None = None
 ) -> None:
+    global executor
+
     def _callback(future: concurrent.futures.Future[None]) -> None:
         try:
             future.result()
@@ -597,22 +603,21 @@ def generate_colors(
         glib.idle_add(default_on_complete)
         if on_complete:
             on_complete()
+        executor.shutdown(False)
 
     if task_lock.acquire(blocking=False):
+        executor = concurrent.futures.ProcessPoolExecutor(max_workers=1)
         try:
-            with concurrent.futures.ProcessPoolExecutor(max_workers=1) as (
-                executor
-            ):
-                future = executor.submit(
-                    functools.partial(
-                        generate_colors_sync,
-                        image_path=image_path,
-                        use_color=use_color,
-                        is_dark=is_dark,
-                        contrast_level=contrast_level
-                    )
+            future = executor.submit(
+                functools.partial(
+                    generate_colors_sync,
+                    image_path=image_path,
+                    use_color=use_color,
+                    is_dark=is_dark,
+                    contrast_level=contrast_level
                 )
-                future.add_done_callback(_callback)
+            )
+            future.add_done_callback(_callback)
         finally:
             task_lock.release()
     else:
