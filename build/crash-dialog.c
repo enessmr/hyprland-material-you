@@ -10,6 +10,36 @@ on_close_clicked(GtkButton *button, gpointer user_data)
 }
 
 static void
+on_restart_clicked(GtkButton *button, gpointer user_data)
+{
+    (void)button;
+    GtkWindow *win = GTK_WINDOW(user_data);
+    gtk_window_destroy(win);
+
+    pid_t pid = fork();
+    if (pid > 0)
+    {
+        return;
+    }
+
+    pid_t sid = setsid();
+    if (sid < 0) {
+        perror("setsid failed");
+        _exit(EXIT_FAILURE);
+    }
+
+    pid_t pid2 = fork();
+    if (pid2 > 0)
+    {
+        _exit(EXIT_SUCCESS);
+    }
+
+    execlp("hypryou-start", "hypryou-start", NULL);
+    perror("Failed to restart");
+    _exit(EXIT_FAILURE);
+}
+
+static void
 activate(GtkApplication *app, gpointer user_data)
 {
     int exit_code = GPOINTER_TO_INT(user_data);
@@ -42,10 +72,19 @@ activate(GtkApplication *app, gpointer user_data)
     gtk_box_append(GTK_BOX(box), description);
     g_free(desc_text);
 
+    GtkWidget *actions_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_widget_set_halign(actions_box, GTK_ALIGN_END);
+    gtk_box_append(GTK_BOX(box), actions_box);
+
+    GtkWidget *restart_button = gtk_button_new_with_label("Restart");
+    gtk_widget_set_halign(restart_button, GTK_ALIGN_END);
+    g_signal_connect(restart_button, "clicked", G_CALLBACK(on_restart_clicked), win);
+    gtk_box_append(GTK_BOX(actions_box), restart_button);
+
     GtkWidget *button = gtk_button_new_with_label("OK");
     gtk_widget_set_halign(button, GTK_ALIGN_END);
     g_signal_connect(button, "clicked", G_CALLBACK(on_close_clicked), win);
-    gtk_box_append(GTK_BOX(box), button);
+    gtk_box_append(GTK_BOX(actions_box), button);
 
     GtkCssProvider *provider = gtk_css_provider_new();
     // Minimum style just in case if gtk4 theme is not set
