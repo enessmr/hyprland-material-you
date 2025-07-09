@@ -10,6 +10,7 @@ from src.services.state import settings_page
 from src.modules.settings.network import NetworkPage
 from src.modules.settings.bluetooth import BluetoothPage
 from src.modules.settings.appearance import AppearancePage
+from src.modules.settings.wallpapers import WallpapersPage
 
 
 class Page(t.NamedTuple):
@@ -59,7 +60,7 @@ pages = {
         title="Wallpaper",
         icon="wallpaper",
         icon_fill=False,
-        widget=NotImplementedYet
+        widget=WallpapersPage
     ),
     "input": Page(
         title="Input",

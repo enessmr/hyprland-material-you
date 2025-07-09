@@ -7,6 +7,7 @@ from config import Settings
 from utils import reload_css
 from utils.service import AsyncService
 from src.services.mpris import current_player
+from src.services.state import set_random_wallpaper
 import subprocess
 import shlex
 from src.services import state
@@ -153,8 +154,17 @@ class CliRequest:
             launch_detached(command)
         return "ok"
 
-    def do_help(self, args: str) -> str:
+    def do_wallpaper(self, wallpaper: str) -> None:
+        if wallpaper == "random":
+            set_random_wallpaper()
+        else:
+            if os.path.isfile(wallpaper):
+                Settings().set("wallpaper", wallpaper)
+            else:
+                return "Is not a file!"
+        return "ok"
 
+    def do_help(self, args: str) -> str:
         max_cmd_len = max((len(cmd) for cmd in HELP), default=0)
         output = ""
         for cmd, help in HELP.items():

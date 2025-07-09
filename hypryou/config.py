@@ -38,6 +38,11 @@ state_path = pjoin(
     TEMP_PATH, "state",
     os.environ["HYPRLAND_INSTANCE_SIGNATURE"]
 )
+# NOTE: ~/wallpaper is for backward compatibility with v1
+wallpaper_dirs = [
+    pjoin(PICTURES_DIR, "wallpapers"),
+    pjoin(HOME, "wallpaper")
+]
 
 info = {
     "name": "HyprYou",

@@ -1,19 +1,24 @@
 import threading
 import time
-from config import Settings
+from config import Settings, wallpaper_dirs
 from utils.ref import Ref
 from utils.styles import reload_css
 from utils.service import Service
 from utils.colors import generate_by_settings
 from repository import gdk, glib, gio
+import random
 import typing as t
 from types import NoneType
 from utils.service import Signals
 from os.path import join, exists
 from config import state_path
 import os
+from os import path
 
 STATE_FILE_VERSION = 1
+WALLPAPER_EXTENSIONS = {
+    ".png", ".jpg", ".jpeg"
+}
 
 _opened_windows = Ref[list[str]]([], name="opened_windows")
 current_wallpaper = Ref[gdk.Texture | None](
@@ -86,6 +91,30 @@ def toggle_window(window_name: str) -> None:
         _opened_windows.value.remove(window_name)
     else:
         _opened_windows.value.append(window_name)
+
+
+def get_all_wallpapers() -> list[str]:
+    images: list[str] = []
+
+    for dir in wallpaper_dirs:
+        if not path.exists(dir) or not path.isdir(dir):
+            continue
+
+        for entry in os.listdir(dir):
+            file = join(dir, entry)
+            if (
+                path.isfile(file)
+                and path.splitext(file)[1] in WALLPAPER_EXTENSIONS
+            ):
+                images.append(file)
+
+    return images
+
+
+def set_random_wallpaper() -> None:
+    wallpapers = get_all_wallpapers()
+    random_wallpaper = random.choice(wallpapers)
+    Settings().set("wallpaper", random_wallpaper)
 
 
 def generate_wallpaper_texture() -> None:

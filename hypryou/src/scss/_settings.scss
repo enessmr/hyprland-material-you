@@ -172,6 +172,45 @@ window.settings {
         }
     }
 
+    .wallpapers-page {
+        .wallpapers-box {
+            margin: 0.25rem;
+        }
+        .wallpaper {
+            @include nLayerBackground($surfaceContainer, 2);
+            border-radius: 0.825rem;
+            min-height: 9rem;
+            min-width: 2rem;
+            margin: 0.25rem;
+            outline-offset: 0;
+
+            .image {
+                border-radius: 0.825rem;
+            }
+
+            label {
+                font-weight: 400;
+                font-size: 1rem;
+                color: $onSurfaceVariant;
+                margin: 0.5rem;
+            }
+
+            &.active {
+                outline: 0.0625rem solid $primary;
+            }
+
+            &:hover {
+                background-color: color.mix($surfaceContainer, $onSurfaceVariant, 95%);
+            }
+            &:active {
+                background-color: color.mix($surfaceContainer, $onSurfaceVariant, 88%);
+            }
+        }
+        .actions-box {
+            padding: 0.325rem;
+        }
+    }
+
     .settings-page separator.horizontal {
         margin: 0.25rem;
         margin-left: 0.5rem;

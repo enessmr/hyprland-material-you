@@ -64,6 +64,8 @@ from src.modules.settings.window import SettingsWatcher
 from src.modules.wifi_secrets import SecretsDialog
 from src.modules.bluetooth_pin import PinDialog
 
+from src.modules.settings.wallpapers import executor as wallpaper_executor
+
 START = time.perf_counter()
 loop: glib.MainLoop
 
@@ -335,9 +337,19 @@ def watchdog(timeout: float) -> None:
         event.clear()
         glib.idle_add(ping, priority=glib.PRIORITY_HIGH)
         if not event.wait(timeout):
+            logger.setLevel(logging.DEBUG)
             logger.critical(
                 "Watchdog error: Loop did not response in time."
             )
+
+            frames = sys._current_frames()
+            for thread_id, frame in frames.items():
+                logger.debug(
+                    "Thread %s:\n%s",
+                    thread_id,
+                    "".join(traceback.format_stack(frame))
+                )
+
             signal.raise_signal(signal.SIGUSR1)
             exit(1)
         time.sleep(timeout)
@@ -365,9 +377,8 @@ def handle_fatal_signal(signum: int, frame: "sys.FrameType") -> None:
     stack_str = ''.join(traceback.format_stack(frame))
     logger.debug("Stack at signal:\n%s", stack_str)
 
-    for executor in (utils.colors.executor,):
+    for executor in (utils.colors.executor, wallpaper_executor):
         try:
-            executor = utils.colors.executor
             if executor:
                 if hasattr(executor, "_processes") and executor._processes:
                     for p in executor._processes.values():
