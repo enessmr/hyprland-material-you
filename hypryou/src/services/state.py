@@ -34,6 +34,7 @@ settings_page = Ref[str | None](
     types=(str, NoneType)
 )
 restored_on = -1.0
+task_lock = threading.Lock()
 
 
 class OpenedWindowsWatcher(Signals):
@@ -124,9 +125,14 @@ def generate_wallpaper_texture() -> None:
     path = settings.get("wallpaper")
 
     def worker() -> None:
-        file = gio.File.new_for_path(path)
-        texture = gdk.Texture.new_from_file(file)
-        current_wallpaper.value = texture
+        if task_lock.acquire():
+            try:
+                file = gio.File.new_for_path(path)
+                texture = gdk.Texture.new_from_file(file)
+                current_wallpaper.value = texture
+                del file
+            finally:
+                task_lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
 

@@ -604,6 +604,7 @@ def generate_colors(
         if on_complete:
             on_complete()
         executor.shutdown(False)
+        task_lock.release()
 
     if task_lock.acquire(blocking=False):
         executor = concurrent.futures.ProcessPoolExecutor(max_workers=1)
@@ -618,7 +619,7 @@ def generate_colors(
                 )
             )
             future.add_done_callback(_callback)
-        finally:
+        except Exception:
             task_lock.release()
     else:
         logger.warning(
