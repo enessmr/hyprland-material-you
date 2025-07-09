@@ -16,7 +16,6 @@ VERSION = f"{MAJOR_VERSION}.{MINOR_VERSION}.{PATCH_VERSION}-beta"
 
 HOME = os.environ["HOME"]
 
-# TODO: Rename PATH to DIR if it's directory for better readability
 CACHE_DIR = os.getenv("XDG_CACHE_HOME", f"{HOME}/.cache")
 CONFIG_DIR = os.getenv("XDG_CONFIG_HOME", f"{HOME}/.config")
 PICTURES_DIR = os.getenv("XDG_PICTURES_DIR", f"{HOME}/Pictures")
