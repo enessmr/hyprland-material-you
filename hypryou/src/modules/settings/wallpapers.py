@@ -12,6 +12,8 @@ import threading
 import typing as t
 import weakref
 from src.services.state import set_random_wallpaper, get_all_wallpapers
+from src.services.state import task_lock as task_lock1
+from utils.colors import task_lock as task_lock2
 
 # That is so difficult to optimize that
 
@@ -66,7 +68,11 @@ def spawn_thumbnail_process(
             method()
         executor.shutdown(False)
 
-    if task_lock.acquire(blocking=False):
+    if (
+        task_lock.acquire(blocking=False)
+        and not task_lock1.locked()
+        and not task_lock2.locked()
+    ):
         executor = concurrent.futures.ProcessPoolExecutor(
             max_workers=1
         )

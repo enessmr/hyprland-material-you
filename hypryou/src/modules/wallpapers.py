@@ -15,7 +15,7 @@ class WallpapersWidget(gtk.Stack):
             transition_type=gtk.StackTransitionType.CROSSFADE,
             transition_duration=450
         )
-        self.old_picture: gtk.Picture | None = None
+        self.picture: gtk.Picture | None = None
         self.counter = -1
         self.handler = current_wallpaper.watch(self.update_image)
         self.update_image()
@@ -28,14 +28,14 @@ class WallpapersWidget(gtk.Stack):
         self.counter += 1
         self.add_named(new_picture, str(self.counter))
         self.set_visible_child_name(str(self.counter))
-        glib.timeout_add(451, self.delete_old_picture, new_picture)
 
-    def delete_old_picture(self, new_picture: gtk.Picture) -> None:
-        if self.old_picture is not None:
-            self.remove(self.old_picture)
-            self.old_picture = None
+        self.picture = new_picture
+        glib.timeout_add(451, self.delete_old_picture)
 
-        self.old_picture = new_picture
+    def delete_old_picture(self) -> None:
+        for picture in list(self):
+            if picture is not self.picture:
+                self.remove(picture)
 
     def destroy(self) -> None:
         current_wallpaper.unwatch(self.handler)
