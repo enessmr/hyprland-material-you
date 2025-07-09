@@ -4,7 +4,7 @@ from utils.logger import logger
 import typing as t
 from utils.service import Signals, Service
 from utils import Ref
-from config import CONFIG_DIR
+from config import ORIGINAL_DIR
 import os
 from src.services.dbus import system_bus
 
@@ -12,7 +12,7 @@ from src.services.dbus import system_bus
 # They have other programming language (Vala), so not all logic here is their
 
 AGENT_XML_PATH = os.path.join(
-    CONFIG_DIR, "assets", "dbus",
+    ORIGINAL_DIR, "assets", "dbus",
     "org.freedesktop.NetworkManager.SecretAgent.xml"
 )
 with open(AGENT_XML_PATH) as f:

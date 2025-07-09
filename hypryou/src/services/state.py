@@ -1,6 +1,6 @@
 import threading
 import time
-from config import Settings, wallpaper_dirs, CONFIG_DIR
+from config import Settings, wallpaper_dirs, ORIGINAL_DIR
 from utils.ref import Ref
 from utils.styles import reload_css
 from utils.service import Service
@@ -95,7 +95,7 @@ def toggle_window(window_name: str) -> None:
 
 def get_all_wallpapers() -> list[str]:
     images: list[str] = [
-        f"{CONFIG_DIR}/assets/default_wallpaper.jpg"
+        f"{ORIGINAL_DIR}/assets/default_wallpaper.jpg"
     ]
 
     for dir in wallpaper_dirs:

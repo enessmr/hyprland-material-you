@@ -1,5 +1,5 @@
 from repository import gtk, pango, gdk_pixbuf, glib, gio
-from config import APP_CACHE_PATH, Settings, wallpaper_dirs
+from config import APP_CACHE_DIR, Settings, wallpaper_dirs
 from os.path import join
 import os.path as path
 import os
@@ -20,7 +20,7 @@ executor: concurrent.futures.ProcessPoolExecutor | None = None
 task_lock = threading.Lock()
 
 THUMB_SIZE = 200
-CACHE_DIR = join(APP_CACHE_PATH, "thumbnails")
+CACHE_DIR = join(APP_CACHE_DIR, "thumbnails")
 os.makedirs(CACHE_DIR, exist_ok=True)
 
 

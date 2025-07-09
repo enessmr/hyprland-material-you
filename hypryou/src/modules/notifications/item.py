@@ -7,7 +7,7 @@ from utils import get_formatted_time, toggle_css_class
 from config import Settings
 import datetime
 import json
-from config import CONFIG_DIR
+from config import ORIGINAL_DIR
 from os.path import join as pjoin
 
 safe_categories: tuple[Category, ...] = (
@@ -17,7 +17,7 @@ safe_categories: tuple[Category, ...] = (
     "call"
 )
 
-messengers_file = pjoin(CONFIG_DIR, "assets", "messengers.json")
+messengers_file = pjoin(ORIGINAL_DIR, "assets", "messengers.json")
 try:
     with open(messengers_file, "r") as f:
         messengers = list(json.load(f))

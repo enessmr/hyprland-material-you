@@ -13,7 +13,7 @@ import sys
 import utils
 from utils.logger import logger
 from src.variables import Globals
-from config import Settings, CONFIG_DIR
+from config import Settings, ORIGINAL_DIR
 
 from gi.events import GLibEventLoopPolicy  # type: ignore[import-untyped]
 import asyncio
@@ -306,7 +306,7 @@ def init() -> None:
     asyncio.set_event_loop_policy(GLibEventLoopPolicy())
     display = gdk.Display.get_default()
     icon_theme = gtk.IconTheme.get_for_display(display)
-    icon_theme.add_search_path(f"{CONFIG_DIR}/assets/icons")
+    icon_theme.add_search_path(f"{ORIGINAL_DIR}/assets/icons")
 
     if settings.get("secure_cliphist"):
         cliphist.secure_clear()

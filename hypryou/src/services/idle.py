@@ -1,6 +1,6 @@
 import asyncio
 import os
-from config import CONFIG_DIR
+from config import ORIGINAL_DIR
 from utils.service import Service
 from repository import gio, glib
 from utils.logger import logger
@@ -23,7 +23,7 @@ from config import Settings
 
 
 WATCHER_XML_PATH = os.path.join(
-    CONFIG_DIR, "assets", "dbus", "org.freedesktop.ScreenSaver.xml"
+    ORIGINAL_DIR, "assets", "dbus", "org.freedesktop.ScreenSaver.xml"
 )
 BUS_WATCHER = "org.freedesktop.ScreenSaver"
 PATH_WATCHER = "/org/freedesktop/ScreenSaver"

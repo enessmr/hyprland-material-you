@@ -3,7 +3,7 @@ import subprocess
 from config import (
     styles_output, main_scss,
     scss_variables, HyprlandVars,
-    TEMP_PATH, color_templates,
+    TEMP_DIR, color_templates,
     Settings
 )
 from src.variables import Globals
@@ -62,7 +62,7 @@ def compile_scss() -> None:
     command = [
         'sass',
         f'--load-path={color_templates}',
-        f'--load-path={TEMP_PATH}',
+        f'--load-path={TEMP_DIR}',
         main_scss,
         styles_output
     ]

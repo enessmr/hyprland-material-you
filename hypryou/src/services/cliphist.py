@@ -4,10 +4,10 @@ import subprocess
 from pathlib import Path
 from utils import Ref
 import os
-from config import APP_CACHE_PATH, CACHE_PATH
+from config import APP_CACHE_DIR, CACHE_DIR
 from utils.logger import logger
 
-TEMP_PATH = os.path.join(APP_CACHE_PATH, "cliphist")
+TEMP_PATH = os.path.join(APP_CACHE_DIR, "cliphist")
 items = Ref[dict[str, str]]({}, name="cliphist_items")
 
 
@@ -67,7 +67,7 @@ def copy_by_id(item_id: str) -> None:
 
 
 def secure_clear() -> None:
-    db_path = os.path.join(CACHE_PATH, "cliphist/db")
+    db_path = os.path.join(CACHE_DIR, "cliphist/db")
     if os.path.exists(db_path):
         subprocess.run(["shred", "-u", db_path], check=True)
     else:

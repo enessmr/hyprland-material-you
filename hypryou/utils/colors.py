@@ -18,7 +18,7 @@ import pickle
 import numpy as np
 import re
 import typing as t
-from config import color_templates, CONFIG_DIR, CONFIG_PATH
+from config import color_templates, ORIGINAL_DIR, CONFIG_DIR
 from utils.logger import logger
 from utils.styles import reload_css
 from utils.ref import Ref
@@ -37,11 +37,11 @@ join = os.path.join
 gsettings = gio.Settings.new("org.gnome.desktop.interface")
 
 
-TEMPLATES_DIR = join(CONFIG_DIR, "assets", "templates")
+TEMPLATES_DIR = join(ORIGINAL_DIR, "assets", "templates")
 CACHE_PATH = color_templates
 
-GTK3_PATH = join(CONFIG_PATH, "gtk-3.0")
-GTK4_PATH = join(CONFIG_PATH, "gtk-4.0")
+GTK3_PATH = join(CONFIG_DIR, "gtk-3.0")
+GTK4_PATH = join(CONFIG_DIR, "gtk-4.0")
 
 gtk3_css = join(CACHE_PATH, "compiled", "gtk-3.0.css")
 gtk4_css = join(CACHE_PATH, "compiled", "gtk-4.0.css")

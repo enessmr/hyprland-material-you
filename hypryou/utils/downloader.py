@@ -4,7 +4,7 @@ import uuid
 
 from repository import gio, glib
 from PIL import Image, ImageFilter
-from config import APP_CACHE_PATH
+from config import APP_CACHE_DIR
 from utils.logger import logger
 import threading
 import shutil
@@ -17,7 +17,7 @@ _download_mutex = threading.Lock()
 
 def get_cache_dir(url: str, subdir: str) -> str:
     name = os.path.basename(url).replace("/", "_")
-    return os.path.join(APP_CACHE_PATH, subdir, name)
+    return os.path.join(APP_CACHE_DIR, subdir, name)
 
 
 def resize_image(

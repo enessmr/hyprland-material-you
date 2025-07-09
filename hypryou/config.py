@@ -17,25 +17,25 @@ VERSION = f"{MAJOR_VERSION}.{MINOR_VERSION}.{PATCH_VERSION}-beta"
 HOME = os.environ["HOME"]
 
 # TODO: Rename PATH to DIR if it's directory for better readability
-CACHE_PATH = os.getenv("XDG_CACHE_HOME", f"{HOME}/.cache")
-CONFIG_PATH = os.getenv("XDG_CONFIG_HOME", f"{HOME}/.config")
+CACHE_DIR = os.getenv("XDG_CACHE_HOME", f"{HOME}/.cache")
+CONFIG_DIR = os.getenv("XDG_CONFIG_HOME", f"{HOME}/.config")
 PICTURES_DIR = os.getenv("XDG_PICTURES_DIR", f"{HOME}/Pictures")
-APP_CACHE_PATH = pjoin(CACHE_PATH, "hypryou")
-CONFIG_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
-TEMP_PATH = "/tmp/hypryou/"
+APP_CACHE_DIR = pjoin(CACHE_DIR, "hypryou")
+ORIGINAL_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
+TEMP_DIR = "/tmp/hypryou/"
 
-color_templates = pjoin(APP_CACHE_PATH, "colors")
-styles_output = pjoin(APP_CACHE_PATH, "style.css")
-scss_variables = pjoin(TEMP_PATH, "_variables.scss")
-main_scss = pjoin(CONFIG_DIR, "src", "scss", "main.scss")
-config_path = pjoin(CONFIG_PATH, "hypryou")
-settings_path = pjoin(config_path, "settings.json")
+color_templates = pjoin(APP_CACHE_DIR, "colors")
+styles_output = pjoin(APP_CACHE_DIR, "style.css")
+scss_variables = pjoin(TEMP_DIR, "_variables.scss")
+main_scss = pjoin(ORIGINAL_DIR, "src", "scss", "main.scss")
+config_dir = pjoin(CONFIG_DIR, "hypryou")
+settings_path = pjoin(config_dir, "settings.json")
 socket_path = pjoin(
-    TEMP_PATH, "sockets",
+    TEMP_DIR, "sockets",
     os.environ["HYPRLAND_INSTANCE_SIGNATURE"]
 )
 state_path = pjoin(
-    TEMP_PATH, "state",
+    TEMP_DIR, "state",
     os.environ["HYPRLAND_INSTANCE_SIGNATURE"]
 )
 # NOTE: ~/wallpaper is for backward compatibility with v1
@@ -59,7 +59,7 @@ default_settings: dict[str, t.Any] = {
     "dark_icons": "Tela-nord-dark",
     "light_icons": "Tela-nord-light",
     "opacity": 1.0,
-    "wallpaper": f"{CONFIG_DIR}/assets/default_wallpaper.jpg",
+    "wallpaper": f"{ORIGINAL_DIR}/assets/default_wallpaper.jpg",
     "separated_workspaces": False,
     "one_popup_at_time": True,
     "power_menu_cancel_button": True,
@@ -89,10 +89,10 @@ default_settings: dict[str, t.Any] = {
     "battery_sleep": 60
 }
 
-os.makedirs(config_path, exist_ok=True)
+os.makedirs(config_dir, exist_ok=True)
 os.makedirs(color_templates, exist_ok=True)
-os.makedirs(APP_CACHE_PATH, exist_ok=True)
-os.makedirs(TEMP_PATH, exist_ok=True)
+os.makedirs(APP_CACHE_DIR, exist_ok=True)
+os.makedirs(TEMP_DIR, exist_ok=True)
 os.makedirs(state_path, exist_ok=True)
 
 

@@ -5,10 +5,10 @@ from src.services.hyprland_keybinds import key_binds
 from src.services.hyprland_keybinds.common import (
     KeyBind, KeyBindHint
 )
-from config import config_path, Settings
+from config import config_dir, Settings
 import os
 
-generated_config = os.path.join(config_path, "hyprland_generated.conf")
+generated_config = os.path.join(config_dir, "hyprland_generated.conf")
 
 noanim_layers = [
     "hypryou-notifications.*",

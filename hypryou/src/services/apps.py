@@ -5,7 +5,7 @@ from utils_cy.levenshtein import compute_score
 from utils.service import Service
 from utils.logger import logger
 from utils import Ref
-from config import APP_CACHE_PATH, CACHE_PATH
+from config import APP_CACHE_DIR, CACHE_DIR
 from os.path import join as pjoin
 import os.path as path
 import json
@@ -17,8 +17,8 @@ apps = Ref[list["Application"]]([], name="applications", delayed_init=True)
 frequents = Ref[dict[str, int]]({}, name="app_frequents", delayed_init=True)
 FOUND_THRESHOLD = 0.4
 
-APP_FREQUENCY = pjoin(APP_CACHE_PATH, "apps-frequency.json")
-LEGACY_APP_FREQUENCY = pjoin(CACHE_PATH, "ags", "apps", "apps_frequency.json")
+APP_FREQUENCY = pjoin(APP_CACHE_DIR, "apps-frequency.json")
+LEGACY_APP_FREQUENCY = pjoin(CACHE_DIR, "ags", "apps", "apps_frequency.json")
 
 
 def launch_detached(exec: str) -> None:
