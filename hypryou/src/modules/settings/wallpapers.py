@@ -19,7 +19,7 @@ from src.services.state import set_random_wallpaper, get_all_wallpapers
 executor: concurrent.futures.ProcessPoolExecutor | None = None
 task_lock = threading.Lock()
 
-THUMB_SIZE = 128
+THUMB_SIZE = 200
 CACHE_DIR = join(APP_CACHE_PATH, "thumbnails")
 os.makedirs(CACHE_DIR, exist_ok=True)
 
