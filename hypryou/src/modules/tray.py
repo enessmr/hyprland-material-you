@@ -96,6 +96,11 @@ class TrayItem(gtk.Box):
     def update_image(self) -> None:
         if not self.get_visible():
             return
+        if __debug__:
+            logger.debug(
+                "Updating icon of tray item %s",
+                self._item.get_bus_name()
+            )
         item = self._item
         image = self.children[0]
         theme = item.icon_theme
@@ -162,6 +167,9 @@ class TrayBox(gtk.ScrolledWindow):
             weakref.finalize(self, lambda: logger.debug("TrayBox finalized"))
 
     def update_items(self, new_items: dict[str, StatusNotifierItem]) -> None:
+        if __debug__:
+            logger.debug("Updating items in tray")
+
         existing_items = set(self.items.keys())
         tray_items = set(new_items.keys())
         for item in tray_items:
