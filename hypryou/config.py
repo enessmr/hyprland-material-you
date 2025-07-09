@@ -16,8 +16,10 @@ VERSION = f"{MAJOR_VERSION}.{MINOR_VERSION}.{PATCH_VERSION}-beta"
 
 HOME = os.environ["HOME"]
 
+# TODO: Rename PATH to DIR if it's directory for better readability
 CACHE_PATH = os.getenv("XDG_CACHE_HOME", f"{HOME}/.cache")
 CONFIG_PATH = os.getenv("XDG_CONFIG_HOME", f"{HOME}/.config")
+PICTURES_DIR = os.getenv("XDG_PICTURES_DIR", f"{HOME}/Pictures")
 APP_CACHE_PATH = pjoin(CACHE_PATH, "hypryou")
 CONFIG_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
 TEMP_PATH = "/tmp/hypryou/"
