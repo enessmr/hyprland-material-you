@@ -641,7 +641,7 @@ def generate_by_wallpaper(
             contrast_level=content.contrast_level,
             on_complete=on_complete
         )
-    except FileNotFoundError:
+    except (FileNotFoundError, json.JSONDecodeError):
         generate_colors(
             image_path,
             None,
@@ -665,7 +665,7 @@ def generate_by_color(
             contrast_level=content.contrast_level,
             on_complete=on_complete
         )
-    except FileNotFoundError:
+    except (FileNotFoundError, json.JSONDecodeError):
         generate_colors(
             None,
             color,
@@ -689,7 +689,7 @@ def generate_by_last_wallpaper(
             contrast_level=content.contrast_level,
             on_complete=on_complete
         )
-    except (FileNotFoundError, AssertionError):
+    except (FileNotFoundError, AssertionError, json.JSONDecodeError):
         generate_colors(
             None,
             0x0000FF,
@@ -724,7 +724,7 @@ def generate_by_settings(
         if on_complete:
             on_complete()
         return True
-    except (FileNotFoundError, ValueError):
+    except (FileNotFoundError, ValueError, json.JSONDecodeError):
         restore_palette()
         return False
 
@@ -743,7 +743,7 @@ def restore_palette(
             content.contrast_level,
             on_complete=on_complete
         )
-    except (FileNotFoundError, AssertionError):
+    except (FileNotFoundError, AssertionError, json.JSONDecodeError):
         generate_colors(
             None,
             0x0000FF,
@@ -767,7 +767,7 @@ def set_dark_mode(
             content.contrast_level,
             on_complete=on_complete
         )
-    except (FileNotFoundError, AssertionError):
+    except (FileNotFoundError, AssertionError, json.JSONDecodeError):
         generate_colors(
             None,
             0x0000FF,
@@ -783,6 +783,6 @@ def sync() -> ColorsCache | None:
             content = get_cache_object(f.read())
         dark_mode.value = content.is_dark
         return content
-    except FileNotFoundError:
+    except (FileNotFoundError, json.JSONDecodeError):
         restore_palette()
         return None
