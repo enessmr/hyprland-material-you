@@ -34,7 +34,7 @@ socket_path = pjoin(
     TEMP_DIR, "sockets",
     os.environ["HYPRLAND_INSTANCE_SIGNATURE"]
 )
-state_path = pjoin(
+state_dir = pjoin(
     TEMP_DIR, "state",
     os.environ["HYPRLAND_INSTANCE_SIGNATURE"]
 )
@@ -93,7 +93,7 @@ os.makedirs(config_dir, exist_ok=True)
 os.makedirs(color_templates, exist_ok=True)
 os.makedirs(APP_CACHE_DIR, exist_ok=True)
 os.makedirs(TEMP_DIR, exist_ok=True)
-os.makedirs(state_path, exist_ok=True)
+os.makedirs(state_dir, exist_ok=True)
 
 
 class HyprlandVars:

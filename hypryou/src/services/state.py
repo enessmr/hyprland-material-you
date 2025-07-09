@@ -11,7 +11,7 @@ import typing as t
 from types import NoneType
 from utils.service import Signals
 from os.path import join, exists
-from config import state_path
+from config import state_dir
 import os
 from os import path
 
@@ -170,12 +170,12 @@ def save_state() -> None:
         data.append(len(pb))
         data.extend(pb)
 
-    with open(join(state_path, "last-state"), "wb") as f:
+    with open(join(state_dir, "last-state"), "wb") as f:
         f.write(data)
 
 
 def restore_state() -> None:
-    path = join(state_path, "last-state")
+    path = join(state_dir, "last-state")
     if not exists(path):
         return
 
