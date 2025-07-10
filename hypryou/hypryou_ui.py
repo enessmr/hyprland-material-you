@@ -320,7 +320,7 @@ def main() -> None:
     if __debug__:
         logger.debug("Starting app")
     loop = glib.MainLoop()
-    start_watchdog(5.0)
+    start_watchdog(7.5)
 
     app = HyprYou(application_id="com.koeqaife.hypryou")
     app.run(None)
