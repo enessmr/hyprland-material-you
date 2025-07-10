@@ -229,7 +229,9 @@ class SettingsTextRow(RowTemplate):
                 if self.transform_fn
                 else new_value
             )
+            self.entry.handler_block(self.entry_handler)
             self.entry.set_text(value)
+            self.entry.handler_unblock(self.entry_handler)
             return
 
         value = (

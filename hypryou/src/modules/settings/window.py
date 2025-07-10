@@ -11,6 +11,7 @@ from src.modules.settings.network import NetworkPage
 from src.modules.settings.bluetooth import BluetoothPage
 from src.modules.settings.appearance import AppearancePage
 from src.modules.settings.wallpapers import WallpapersPage
+from src.modules.settings.sleep import SleepPage
 
 
 class Page(t.NamedTuple):
@@ -78,7 +79,7 @@ pages = {
         title="Sleep",
         icon="power_settings_circle",
         icon_fill=True,
-        widget=NotImplementedYet
+        widget=SleepPage
     ),
     "apps": Page(
         title="Apps",
