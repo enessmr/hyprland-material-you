@@ -47,7 +47,7 @@ import src.services.cliphist as cliphist
 from src.modules.bar import Bar, Corner
 from src.modules.tray import TrayWindow
 from src.modules.notifications.popups import Notifications
-from src.modules.sidebar.window import Sidebar
+from src.modules.sidebar.window import SidebarWindow
 from src.modules.apps_menu import AppsWindow
 from src.modules.players import PlayersWindow
 from src.modules.cliphist import ClipHistoryWindow
@@ -92,7 +92,7 @@ services: tuple[AsyncService | Service, ...] = (
 
 popups_types = (
     TrayWindow,
-    Sidebar,
+    SidebarWindow,
     AppsWindow,
     PlayersWindow,
     ClipHistoryWindow,

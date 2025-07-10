@@ -40,7 +40,7 @@ edges = (
 )
 
 
-class Sidebar(widget.LayerWindow):
+class SidebarWindow(widget.LayerWindow):
     __gtype_name__ = "SidebarWindow"
 
     def __init__(self, app: gtk.Application) -> None:
