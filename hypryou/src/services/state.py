@@ -14,6 +14,7 @@ from os.path import join, exists
 from config import state_dir
 import os
 from os import path
+import gc
 
 STATE_FILE_VERSION = 1
 WALLPAPER_EXTENSIONS = {
@@ -124,17 +125,20 @@ def generate_wallpaper_texture() -> None:
     settings = Settings()
     path = settings.get("wallpaper")
 
-    def worker() -> None:
-        if task_lock.acquire():
-            try:
-                file = gio.File.new_for_path(path)
-                texture = gdk.Texture.new_from_file(file)
-                current_wallpaper.value = texture
-                del file
-            finally:
-                task_lock.release()
+    if task_lock.acquire():
+        try:
+            file = gio.File.new_for_path(path)
+            texture = gdk.Texture.new_from_file(file)
 
-    threading.Thread(target=worker, daemon=True).start()
+            old_texture = current_wallpaper.value
+            current_wallpaper.value = texture
+
+            del file
+            if old_texture:
+                del old_texture
+            gc.collect()
+        finally:
+            task_lock.release()
 
 
 def on_wallpapers_changed(*args: t.Any) -> None:
