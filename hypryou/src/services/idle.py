@@ -117,25 +117,47 @@ class ScreenSaver:
         return login1.is_idle_inhibited() or bool(self.items)
 
     def dpms_off(self, *args: t.Any) -> None:
+        if __debug__:
+            logger.debug(
+                "Idle: Turning off screen"
+            )
         if self.is_inhibited:
+            if __debug__:
+                logger.debug("Is inhibited!")
             return
         asyncio.create_task(hyprland.client.raw("dispatch dpms off"))
 
     def dpms_on(self, *args: t.Any) -> None:
+        if __debug__:
+            logger.debug(
+                "Idle: Turning on screen"
+            )
         asyncio.create_task(hyprland.client.raw("dispatch dpms on"))
 
     def on_lock(self, *args: t.Any) -> None:
+        if __debug__:
+            logger.debug(
+                "Idle: Locking screen"
+            )
         if self.is_inhibited:
+            if __debug__:
+                logger.debug("Is inhibited!")
             return
         is_idle_locked.value = True
         is_locked.value = True
 
     def on_sleep(self, *args: t.Any) -> None:
+        if __debug__:
+            logger.debug(
+                "Idle: Sleep"
+            )
         login1 = get_login_manager()
         if login1.can_sleep() and not self.is_inhibited:
             for player in players.value.values():
                 player.pause()
             login1.suspend()
+        elif __debug__:
+            logger.debug("Is inhibited!")
 
     def update_on_battery(self, *args: t.Any) -> None:
         upower = get_upower()
@@ -170,6 +192,10 @@ class ScreenSaver:
             dpms_timeout = settings.get("battery_dpms")
             sleep_timeout = settings.get("battery_sleep")
 
+        if __debug__:
+            logger.debug("Lock timeout: %d", lock_timeout)
+            logger.debug("Dpms timeout: %d", dpms_timeout)
+            logger.debug("Sleep timeout: %d", sleep_timeout)
         if lock_timeout > 0:
             self.create_idle_notification(
                 lock_timeout,
