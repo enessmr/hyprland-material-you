@@ -26,7 +26,10 @@ This fork is v1 just with minor modifications. (no new modules)
 ### Installation
 
 **⚠️ Known Issues:** 
-- None
+- None :)
+
+**⚠️ Distro-Spesific Known Issues:** 
+- On LFS, theres a drop shadow on image icons for some reason
 
 **⚠️ Previous Known Issues:**
 - JSON.parse fails -> Wait for AIs to give the decode or stringify example to fix

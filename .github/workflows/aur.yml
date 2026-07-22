@@ -1,0 +1,28 @@
+name: Publish pkg to AUR
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        
+      - name: Publish to AUR
+        uses: KSXGitHub/github-actions-deploy-aur@v4.1.1
+        with:
+          pkgname: hmy-agsv1-fork-enessmr-git
+          pkgbuild: aur/PKGBUILD
+          commit_username: ISwitchedToLFS
+          commit_email: enessmr22@gmail.com
+          ssh_private_key: | 
+            -----BEGIN OPENSSH PRIVATE KEY-----
+            b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+            QyNTUxOQAAACDSTxPUir+2wOT53xxPlMVsHRBUrhgOlewZXLsf40EFOwAAAJgqoy6dKqMu
+            nQAAAAtzc2gtZWQyNTUxOQAAACDSTxPUir+2wOT53xxPlMVsHRBUrhgOlewZXLsf40EFOw
+            AAAEAqR0csYGYAJl30PktZXw7LUdHqfY8LxW80bkZrLg0JH9JPE9SKv7bA5PnfHE+UxWwd
+            EFSuGA6V7Blcux/jQQU7AAAADmF1ciB1cGxvYWQga2V5AQIDBAUGBw==
+            -----END OPENSSH PRIVATE KEY-----
